@@ -1,0 +1,24 @@
+public class DecisionTree {
+
+    public static String predict(int attendance, int prev, int assign, int internal) {
+
+        if(attendance > 80) {
+
+            if(prev > 75) {
+                return "A";
+            } else {
+                if(assign > 70)
+                    return "B";
+                else
+                    return "C";
+            }
+
+        } else {
+
+            if(internal > 60)
+                return "C";
+            else
+                return "Fail";
+        }
+    }
+}
