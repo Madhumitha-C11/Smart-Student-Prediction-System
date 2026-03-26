@@ -1,0 +1,72 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+import javax.swing.*;
+
+public class LoginForm extends JFrame implements ActionListener {
+
+    JTextField username;
+    JPasswordField password;
+    JButton loginBtn;
+
+    LoginForm() {
+
+        setTitle("Teacher Login");
+        setSize(400,200);
+        setLayout(new FlowLayout());
+
+        JLabel userLabel = new JLabel("Username:");
+        username = new JTextField(15);
+
+        JLabel passLabel = new JLabel("Password:");
+        password = new JPasswordField(15);
+
+        loginBtn = new JButton("Login");
+
+        add(userLabel);
+        add(username);
+        add(passLabel);
+        add(password);
+        add(loginBtn);
+
+        loginBtn.addActionListener(this);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // center screen
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        String user = username.getText();
+        String pass = new String(password.getPassword());
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "SELECT * FROM teachers WHERE username=? AND password=?";
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setString(1, user);
+            ps.setString(2, pass);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()) {
+                JOptionPane.showMessageDialog(this, "Login Successful ✅");
+              System.out.println("Login Success - Opening Dashboard");
+                new Dashboard();   // 👉 Open Dashboard
+                dispose();         // 👉 Close Login Window
+
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid Username or Password ❌");
+            }
+
+            con.close();
+
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database Error!");
+        }
+    }
+}
