@@ -1,0 +1,67 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class StudentForm extends JFrame implements ActionListener {
+
+    JTextField name, attendance, prev, assign, internal;
+    JButton submit;
+
+    StudentForm() {
+        setTitle("Student Form");
+        setSize(300,300);
+        setLayout(new GridLayout(6,2));
+
+        name = new JTextField();
+        attendance = new JTextField();
+        prev = new JTextField();
+        assign = new JTextField();
+        internal = new JTextField();
+
+        add(new JLabel("Name")); add(name);
+        add(new JLabel("Attendance")); add(attendance);
+        add(new JLabel("Previous Score")); add(prev);
+        add(new JLabel("Assignment")); add(assign);
+        add(new JLabel("Internal")); add(internal);
+
+        submit = new JButton("Predict & Save");
+        add(submit);
+
+        submit.addActionListener(this);
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        String grade = DecisionTree.predict(
+            Integer.parseInt(attendance.getText()),
+            Integer.parseInt(prev.getText()),
+            Integer.parseInt(assign.getText()),
+            Integer.parseInt(internal.getText())
+        );
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            String query = "INSERT INTO students(name,attendance,previous_score,assignment_score,internal_marks,predicted_grade) VALUES(?,?,?,?,?,?)";
+
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setString(1,name.getText());
+            ps.setInt(2,Integer.parseInt(attendance.getText()));
+            ps.setInt(3,Integer.parseInt(prev.getText()));
+            ps.setInt(4,Integer.parseInt(assign.getText()));
+            ps.setInt(5,Integer.parseInt(internal.getText()));
+            ps.setString(6,grade);
+
+            ps.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Saved! Grade: " + grade);
+
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
